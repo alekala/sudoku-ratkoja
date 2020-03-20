@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from solver import solve, printBoard
+from solver_text import solve, printBoard
 
 board = [
     [5, 3, 0, 0, 7, 0, 0, 0, 0],
