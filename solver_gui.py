@@ -182,6 +182,10 @@ class Sudoku:
     """
     def update(self):
         self.mousePos = pygame.mouse.get_pos()
+        if self.solved:
+            self.buttons[0].text = "Uusi"
+        else:
+            self.buttons[0].text = "Ratkaise"
         for button in self.buttons:
             button.update(self.mousePos)
 
@@ -194,6 +198,9 @@ class Sudoku:
         for button in self.buttons:
             button.draw(self.win)
         self.drawNumbers(self.win)
+        if self.solved:
+            font = self.font.render("Ratkaistu!", False, colors["black"])
+            self.win.blit(font, (20, 590))
         pygame.display.update()
     
     """
@@ -242,8 +249,8 @@ class Sudoku:
     mikäli edellinen on ratkaistu
     """
     def findNew(self):
-        self.bo = scraper.getBoard()
         self.solved = False
+        self.bo = scraper.getBoard()
         self.solve()
 
 if __name__ == "__main__":
