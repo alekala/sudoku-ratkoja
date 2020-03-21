@@ -4,20 +4,6 @@ import pygame, sys
 from requests import get
 from bs4 import BeautifulSoup
 
-"""
-board = [
-    [4, 1, 0, 0, 8, 0, 0, 0, 3],
-    [0, 7, 0, 0, 0, 1, 0, 4, 9],
-    [5, 3, 6, 9, 0, 4, 0, 0, 0],
-    [0, 6, 1, 0, 0, 0, 8, 0, 7],
-    [0, 0, 0, 0, 6, 0, 0, 0, 0],
-    [7, 0, 4, 0, 0, 0, 5, 9, 0],
-    [0, 0, 0, 4, 0, 2, 9, 6, 8],
-    [6, 8, 0, 1, 0, 0, 0, 7, 0],
-    [9, 0, 0, 0, 7, 0, 0, 3, 5]
-]
-"""
-
 colors = {
     "white": (255, 255, 255),
     "black": (0, 0, 0),
@@ -29,8 +15,23 @@ colors = {
 class Scraper:
     def __init__(self, site):
         self.site = site
-        self.request = get(site)
-        self.soup = BeautifulSoup(request.text, "html.parser")
+    
+    def getBoard(self):
+        self.request = get(self.site)
+        self.soup = BeautifulSoup(self.request.text, "html.parser")
+        self.gridElement = self.soup.find(id="puzzle_grid")
+        rows = self.gridElement.find_all("tr")
+        bo = []
+        for row in rows:
+            temp = []
+            for element in row.find_all("input"):
+                try:
+                    digit = element["value"]
+                except:
+                    digit = 0
+                temp.append(int(digit))
+            bo.append(temp)
+        return bo
 
 class Button:
     def __init__(self, x, y, width, height, text="", function=None, color=(colors["lightGray"]), highlight=(colors["darkGray"])):
@@ -105,7 +106,7 @@ class Sudoku:
                 bo[y][x] = digit
                 self.draw()
                 self.events()
-                pygame.time.delay(5)
+                # pygame.time.delay(50)
                 if self.solve():
                     self.solved = True
                     return True
@@ -134,11 +135,6 @@ class Sudoku:
         for index, x in enumerate(bo[pos[1]]):
             if x is num and pos[0] is not index:
                 return False
-        
-        # Tarkista sarake
-        # for index, y in enumerate(bo):
-        #     if y[pos[0]] is num and pos[0] is not index:
-        #         return False
         
         for index in range(0, len(bo)):
             if bo[index][pos[0]] is num and pos[0] is not index:
@@ -176,6 +172,8 @@ class Sudoku:
                 sys.exit()
             elif event.type == pygame.MOUSEBUTTONUP:
                 if self.buttons[0].rect.collidepoint(self.mousePos):
+                    if self.solved:
+                        self.findNew()
                     self.solve()
     
     """
@@ -239,8 +237,17 @@ class Sudoku:
         pos[1] += (60 - fontHeight) // 2
         window.blit(font, pos)
 
+    """
+    Etsii uuden sudokun ratkottavaksi
+    mikäli edellinen on ratkaistu
+    """
+    def findNew(self):
+        self.bo = scraper.getBoard()
+        self.solved = False
+        self.solve()
+
 if __name__ == "__main__":
-    scraper = Scraper("https://www.websudoku.com/")
+    scraper = Scraper("https://nine.websudoku.com/?level=4")
     board = scraper.getBoard()
     gui = Sudoku(board)
     gui.run()
