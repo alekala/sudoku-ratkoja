@@ -85,8 +85,10 @@ class Sudoku:
         self.buttons = []
         self.loadButtons()
         self.font = pygame.font.SysFont("cambria", 60 // 2)
+        self.icon = pygame.image.load("icon.png")
         self.solved = False
         pygame.display.set_caption("Sudoku")
+        pygame.display.set_icon(self.icon)
 
     """
     Ratkaisee sudokun ja visualisoi
@@ -106,7 +108,7 @@ class Sudoku:
                 bo[y][x] = digit
                 self.draw()
                 self.events()
-                # pygame.time.delay(50)
+                pygame.time.delay(40)
                 if self.solve():
                     self.solved = True
                     return True
@@ -254,6 +256,7 @@ class Sudoku:
         self.solve()
 
 if __name__ == "__main__":
+    # Käytä websudokun "epic" vaikeusastetta
     scraper = Scraper("https://nine.websudoku.com/?level=4")
     board = scraper.getBoard()
     gui = Sudoku(board)
